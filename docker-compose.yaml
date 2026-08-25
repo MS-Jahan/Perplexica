@@ -3,8 +3,10 @@ services:
     image: itzcrazykns1337/vane:latest
     build:
       context: .
-    ports:
-      - '3010:3000'
+    # No host port mapping: Coolify's traefik proxy routes to the container
+    # port directly. Publishing `3010:3000` made Coolify set the traefik
+    # loadbalancer port to 3010 (host side), which nothing listens on inside
+    # the container — 502s. Container port 3000 comes from the Dockerfile.
     environment:
       # Point Vane at an external SearXNG instance instead of the bundled one.
       # Leave SEARXNG_API_URL unset to use the bundled SearXNG (:8080).
