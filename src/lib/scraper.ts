@@ -1,6 +1,7 @@
 import { JSDOM } from 'jsdom';
 import { Readability } from '@mozilla/readability';
 import { Mutex } from 'async-mutex';
+import { getProxySettings } from './net/proxy';
 
 class Scraper {
   private static browser: any | undefined;
@@ -14,9 +15,11 @@ class Scraper {
     await this.browserMutex.runExclusive(async () => {
       if (!this.browser) {
         const { chromium } = await import('playwright');
+        const proxy = getProxySettings();
         this.browser = await chromium.launch({
           headless: true,
           channel: 'chromium-headless-shell',
+          ...(proxy ? { proxy } : {}),
           args: [
             '--no-sandbox',
             '--disable-setuid-sandbox',
