@@ -34,8 +34,10 @@ COPY drizzle ./drizzle
 
 RUN mkdir /home/vane/uploads
 
-RUN yarn add playwright
-RUN yarn playwright install --with-deps --only-shell chromium
+COPY --from=builder /home/vane/node_modules/playwright ./node_modules/playwright
+COPY --from=builder /home/vane/node_modules/playwright-core ./node_modules/playwright-core
+COPY --from=builder /home/vane/node_modules/.bin/playwright ./node_modules/.bin/playwright
+RUN node node_modules/playwright/cli.js install --with-deps --only-shell chromium
 
 RUN useradd --shell /bin/bash --system \
     --home-dir "/usr/local/searxng" \
@@ -71,7 +73,5 @@ RUN sed -i 's/\r$//' ./entrypoint.sh || true
 RUN echo "searxng ALL=(ALL) NOPASSWD: ALL" >> /etc/sudoers
 
 EXPOSE 3000 8080
-
-ENV SEARXNG_API_URL=http://localhost:8080
 
 CMD ["/home/vane/entrypoint.sh"]
