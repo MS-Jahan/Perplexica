@@ -228,9 +228,11 @@ class ConfigManager {
 
     /* search section */
     this.uiConfigSections.search.forEach((f) => {
-      if (f.env && !this.currentConfig.search[f.key]) {
+      if (f.env) {
+        /* Operator-provided env wins over config.json so an external
+         * SearXNG instance can be pinned without touching the UI. */
         this.currentConfig.search[f.key] =
-          process.env[f.env] ?? f.default ?? '';
+          process.env[f.env] ?? this.currentConfig.search[f.key] ?? f.default ?? '';
       }
     });
 
