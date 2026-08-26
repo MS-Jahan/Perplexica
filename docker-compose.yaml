@@ -18,6 +18,8 @@ services:
       # or `basic` (SEARXNG_API_KEY_TYPE=basic, key = user:password).
       - SEARXNG_API_KEY=${SEARXNG_API_KEY:-}
       - SEARXNG_API_KEY_TYPE=${SEARXNG_API_KEY_TYPE:-}
+      # Optional UI password. Unset = open access.
+      - VANE_PASSWORD=${VANE_PASSWORD:-}
     volumes:
       - data:/home/vane/data
     restart: unless-stopped
