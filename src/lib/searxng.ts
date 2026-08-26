@@ -1,4 +1,8 @@
-import { getSearxngURL } from './config/serverRegistry';
+import {
+  getSearxngAuthHeader,
+  getSearxngAuthValue,
+  getSearxngURL,
+} from './config/serverRegistry';
 
 /**
  * Builds auth headers for an external SearXNG instance protected by a
@@ -24,9 +28,9 @@ export const getSearxngAuthHeaders = (
   const key = process.env.SEARXNG_API_KEY;
   const type = (process.env.SEARXNG_API_KEY_TYPE || 'bearer').toLowerCase();
 
-  /* Fully custom header: name + value chosen by the operator */
-  const customHeader = process.env.SEARXNG_AUTH_HEADER;
-  const customValue = process.env.SEARXNG_AUTH_VALUE;
+  /* Custom header from UI override or environment */
+  const customHeader = getSearxngAuthHeader();
+  const customValue = getSearxngAuthValue();
   if (customHeader && customValue) {
     headers[customHeader] = customValue;
     return headers;

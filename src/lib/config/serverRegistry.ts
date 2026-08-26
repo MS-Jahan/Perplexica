@@ -12,4 +12,16 @@ export const getConfiguredModelProviderById = (
 };
 
 export const getSearxngURL = () =>
-  configManager.getConfig('search.searxngURL', '');
+  configManager.getEffectiveSearchValue('searxngURL', 'SEARXNG_API_URL');
+
+export const getSearxngAuthHeader = () =>
+  configManager.getEffectiveSearchValue(
+    'searxngAuthHeader',
+    'SEARXNG_AUTH_HEADER',
+  );
+
+export const getSearxngAuthValue = () =>
+  configManager.getEffectiveSearchValue(
+    'searxngAuthValue',
+    'SEARXNG_AUTH_VALUE',
+  );

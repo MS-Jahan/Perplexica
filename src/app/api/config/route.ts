@@ -32,6 +32,7 @@ export const GET = async (req: NextRequest) => {
     return NextResponse.json({
       values,
       fields,
+      searchEnvStatus: configManager.getSearchEnvStatus(),
     });
   } catch (err) {
     console.error('Error in getting config: ', err);
@@ -46,10 +47,10 @@ export const POST = async (req: NextRequest) => {
   try {
     const body: SaveConfigBody = await req.json();
 
-    if (!body.key || !body.value) {
+    if (!body.key) {
       return Response.json(
         {
-          message: 'Key and value are required.',
+          message: 'Key is required.',
         },
         {
           status: 400,
@@ -57,7 +58,7 @@ export const POST = async (req: NextRequest) => {
       );
     }
 
-    configManager.updateConfig(body.key, body.value);
+    configManager.updateConfig(body.key, body.value ?? '');
 
     return Response.json(
       {

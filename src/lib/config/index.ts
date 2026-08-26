@@ -18,6 +18,8 @@ class ConfigManager {
     modelProviders: [],
     search: {
       searxngURL: '',
+      searxngAuthHeader: '',
+      searxngAuthValue: '',
     },
   };
   uiConfigSections: UIConfigSections = {
@@ -112,6 +114,30 @@ class ConfigManager {
         default: '',
         scope: 'server',
         env: 'SEARXNG_API_URL',
+      },
+      {
+        name: 'SearXNG auth header',
+        key: 'searxngAuthHeader',
+        type: 'string',
+        required: false,
+        description:
+          'Custom HTTP header name for your SearXNG gateway (e.g. X-Api-Key)',
+        placeholder: 'X-My-Gateway-Key',
+        default: '',
+        scope: 'server',
+        env: 'SEARXNG_AUTH_HEADER',
+      },
+      {
+        name: 'SearXNG auth value',
+        key: 'searxngAuthValue',
+        type: 'password',
+        required: false,
+        description:
+          'Value for the custom auth header. Leave empty to use the environment variable.',
+        placeholder: 'your-secret-key',
+        default: '',
+        scope: 'server',
+        env: 'SEARXNG_AUTH_VALUE',
       },
     ],
   };
@@ -226,17 +252,50 @@ class ConfigManager {
 
     this.currentConfig.modelProviders.push(...newProviders);
 
-    /* search section */
+    /* search section — env is resolved at runtime; config.json holds UI overrides */
     this.uiConfigSections.search.forEach((f) => {
-      if (f.env) {
-        /* Operator-provided env wins over config.json so an external
-         * SearXNG instance can be pinned without touching the UI. */
-        this.currentConfig.search[f.key] =
-          process.env[f.env] ?? this.currentConfig.search[f.key] ?? f.default ?? '';
+      if (this.currentConfig.search[f.key] === undefined) {
+        this.currentConfig.search[f.key] = f.default ?? '';
       }
     });
 
     this.saveConfig();
+  }
+
+  /** UI override when set; otherwise falls back to the linked env var. */
+  public getEffectiveSearchValue(key: string, envVar?: string): string {
+    const configVal = this.currentConfig.search[key];
+    if (
+      configVal !== undefined &&
+      configVal !== null &&
+      String(configVal).length > 0
+    ) {
+      return String(configVal);
+    }
+
+    if (envVar && process.env[envVar]) {
+      return process.env[envVar]!;
+    }
+
+    return '';
+  }
+
+  public getSearchEnvStatus(): Record<
+    string,
+    { envVar: string; isSet: boolean }
+  > {
+    const status: Record<string, { envVar: string; isSet: boolean }> = {};
+
+    this.uiConfigSections.search.forEach((f) => {
+      if (f.env) {
+        status[f.key] = {
+          envVar: f.env,
+          isSet: Boolean(process.env[f.env]),
+        };
+      }
+    });
+
+    return status;
   }
 
   public getConfig(key: string, defaultValue?: any): any {

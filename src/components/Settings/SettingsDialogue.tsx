@@ -206,6 +206,9 @@ const SettingsDialogue = ({
                       <selectedSection.component
                         fields={config.fields[selectedSection.dataAdd]}
                         values={config.values[selectedSection.dataAdd]}
+                        {...(selectedSection.key === 'search' && {
+                          envStatus: config.searchEnvStatus,
+                        })}
                       />
                     </div>
                   </div>
